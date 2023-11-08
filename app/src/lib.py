@@ -36,10 +36,20 @@ def create_user_db(namedb, namespace, user_db, password_user):
         message = f"Пользователь {user_db} создан в {namedb}"
 
     return message
-
-# TODO: add func update CRD if password changes     
+ 
 def update_password_user_db(namedb, namespace, user_db, password_user):
-    return None
+    client = db_connect(namedb, namespace)
+    
+    check_exists_user = list_users(namedb, namespace, user_db)
+
+    if check_exists_user != -1:
+        query = 'ALTER USER ' + user_db + ' SET PASSWORD ' + '\'' + password_user + '\''
+        client.command(query)
+        message = f"У Пользователя {user_db} изменен пароль."
+    else:
+        message = f"Такого пользователя {user_db} уже нет в БД {namedb}, пожайлуста создайте его"
+
+    return message
 
 def delete_user_db(namedb, namespace, user_db):
     client = db_connect(namedb, namespace)
