@@ -29,10 +29,11 @@ def create_user_db(namedb, namespace, user_db, password_user):
     if check_exists_user != -1:
         message = f"Пользователь {user_db} уже есть в {namedb}"
     else:
-        query = 'CREATE USER ' + user_db + ' HOST ANY IDENTIFIED WITH sha256_password BY ' + '\'' + password_user + '\''
-        query_1 = 'GRANT SELECT,SHOW,OPTIMIZE ON default.* TO ' + user_db + ' WITH GRANT OPTION' 
-        client.command(query)
-        client.command(query_1)
+        parameters = {'user': user_db, 'password': password_user}
+        query = 'CREATE USER %(user)s HOST ANY IDENTIFIED WITH sha256_password BY %(password)s'
+        query_1 = 'GRANT SELECT,SHOW,OPTIMIZE ON default.* TO %(user)s WITH GRANT OPTION'
+        client.query(query, parameters=parameters)
+        client.query(query_1, parameters=parameters)
         message = f"Пользователь {user_db} создан в {namedb}"
 
     return message
@@ -43,8 +44,9 @@ def update_password_user_db(namedb, namespace, user_db, password_user):
     check_exists_user = list_users(namedb, namespace, user_db)
 
     if check_exists_user != -1:
-        query = 'ALTER USER ' + user_db + ' SET PASSWORD ' + '\'' + password_user + '\''
-        client.command(query)
+        parameters = {'user': user_db, 'password': password_user}
+        query = 'ALTER USER %(user)s IDENTIFIED BY %(password)s'
+        client.query(query, parameters=parameters)
         message = f"У Пользователя {user_db} изменен пароль."
     else:
         message = f"Такого пользователя {user_db} уже нет в БД {namedb}, пожайлуста создайте его"
@@ -57,8 +59,9 @@ def delete_user_db(namedb, namespace, user_db):
     check_exists_user = list_users(namedb, namespace, user_db)
 
     if check_exists_user != -1:
-        query = 'DROP USER ' + user_db
-        client.command(query)
+        parameters = {'user': user_db}
+        query = 'DROP USER %(user)s'
+        client.query(query, parameters=parameters)
         message = f"Пользователь {user_db} удален в {namedb}"
     else:
         message = f"Такого пользователя {user_db} уже нет в БД {namedb}"
