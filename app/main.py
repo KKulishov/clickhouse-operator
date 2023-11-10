@@ -1,4 +1,6 @@
+import datetime
 import kopf
+import random
 from src.lib import create_user_db, delete_user_db, update_password_user_db
 
 RESOURCE_GROUP = "devops.org"
@@ -26,13 +28,14 @@ def update_password(spec, logger, **kwargs):
     namedb = spec.get('namedb', None)
     password = spec.get('password', None)
     update_password = update_password_user_db(namedb, type, user, password)
-    
+    '''
     if type is not None:
         print(f"type in spec: {type}")
     if user is not None:
         print(f"user in spec: {user}")
     else:
         print("No 'spec' field in the Custom Resource.")
+    '''
     logger.info(update_password)
     return update_password
 
@@ -44,3 +47,15 @@ def delete_custom_resource(body, spec, logger, **kwargs):
     delete_user = delete_user_db(namedb, type, user)
     logger.info(delete_user)
     return delete_user
+
+
+@kopf.on.probe(id='now')
+def get_current_timestamp(**kwargs):
+    """
+    add healthcheack simple probe
+    """
+    return datetime.datetime.utcnow().isoformat()
+
+@kopf.on.probe(id='random')
+def get_random_value(**kwargs):
+    return random.randint(0, 1_000_000)

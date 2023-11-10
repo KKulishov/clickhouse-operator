@@ -1,5 +1,7 @@
 FROM python:3-buster
 
+RUN ln -snf /usr/share/zoneinfo/Europe/Moscow /etc/localtime && echo Europe/Moscow > /etc/timezone
+
 ENV HTTPS_PROXY http://proxy-server.sovcombank.group:3128
 ENV HTTP_PROXY http://proxy-server.sovcombank.group:3128
 ENV https_proxy http://proxy-server.sovcombank.group:3128
@@ -22,5 +24,5 @@ COPY --chown=1000:1000 ./app /app/lib/
 
 USER python
 
-ENTRYPOINT ["kopf", "run"]
+ENTRYPOINT ["kopf", "run", "--liveness=http://0.0.0.0:8080/healthz"]
 CMD ["main.py"]
